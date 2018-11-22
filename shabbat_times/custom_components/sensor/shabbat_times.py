@@ -76,10 +76,8 @@ class ShabbatTimes(Entity):
     @asyncio.coroutine
     def async_added_to_hass(self):
       """ Restore original state."""
-      self.update()
-      return
       old_state = yield from async_get_last_state(self.hass, self.entity_id)
-      _LOGGER.info('Old state: ' + str(old_state))
+      _LOGGER.debug('Old state: ' + str(old_state))
       if (not old_state or 
           old_state.attributes[LAST_UPDATE] is None or 
           old_state.attributes[SHABBAT_START] is None or
