@@ -10,7 +10,8 @@ from homeassistant.components.sensor import PLATFORM_SCHEMA
 from homeassistant.const import CONF_SCAN_INTERVAL, CONF_LONGITUDE, CONF_LATITUDE, CONF_NAME, CONF_TIME_ZONE
 from homeassistant.util import Throttle
 from homeassistant.helpers.entity import Entity
-from homeassistant.helpers.restore_state import async_get_last_state
+#from homeassistant.helpers.restore_state import async_get_last_state
+from homeassistant.helpers.restore_state import RestoreEntity
 import homeassistant.helpers.config_validation as cv
 
 _LOGGER = logging.getLogger(__name__)
@@ -55,7 +56,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     add_devices([ShabbatTimes(hass, latitude, longitude, timezone, name, havdalah, candle_light)])
 
 
-class ShabbatTimes(Entity):
+class ShabbatTimes(RestoreEntity, Entity):
 
     def __init__(self, hass, latitude, longitude, timezone, name, havdalah, candle_light):
         self._hass = hass
@@ -76,8 +77,8 @@ class ShabbatTimes(Entity):
     @asyncio.coroutine
     def async_added_to_hass(self):
       """ Restore original state."""
-      old_state = yield from async_get_last_state(self.hass, self.entity_id)
-      _LOGGER.debug('Old state: ' + str(old_state))
+      old_state = yield from self.async_get_last_state()
+      _LOGGER.info('Old state: ' + str(old_state))
       if (not old_state or 
           old_state.attributes[LAST_UPDATE] is None or 
           old_state.attributes[SHABBAT_START] is None or
